@@ -1,18 +1,16 @@
 package com.titu.tituapp.ui.main
 
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import com.titu.tituapp.R
+import com.titu.tituapp.ui.main.vm.MainViewModel
+import kotlinx.android.synthetic.main.main_fragment.*;
 
 class MainFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = MainFragment()
-    }
 
     private lateinit var viewModel: MainViewModel
 
@@ -25,8 +23,11 @@ class MainFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
-        // TODO: Use the ViewModel
+        viewModel = MainViewModel()
+
+        pressMe.setOnClickListener {
+            findNavController().navigate(R.id.open_movie_details)
+        }
     }
 
 }
