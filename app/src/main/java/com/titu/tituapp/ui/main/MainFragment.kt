@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.navigation.fragment.findNavController
 import com.titu.tituapp.R
+import com.titu.tituapp.ui.main.datamodels.Movie
 import com.titu.tituapp.ui.main.vm.MainViewModel
-import com.titu.tituapp.ui.main.vm.Movie
 import kotlinx.android.synthetic.main.main_fragment.*
 import kotlinx.android.synthetic.main.mainview_list_item_movie.view.*
 
@@ -74,7 +74,7 @@ class RecyclerViewAdapter(
     override fun getItemCount(): Int = movies.size
 
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
-        holder.movieName.text = movies[position].name
+        holder.movieName.text = movies[position].title
         holder.itemView.setOnClickListener { movieClickListener.onClicked(position) }
     }
 
