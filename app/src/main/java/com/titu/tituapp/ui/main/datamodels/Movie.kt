@@ -6,7 +6,7 @@ data class Movie(
     val vote_average: Double,
     val title: String,
     val overview: String,
-    val adult: Boolean
+    val poster_path: String
 )
 
 // Data Model for the Response returned from the TMDB Api
