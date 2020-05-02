@@ -1,27 +1,26 @@
 package com.titu.tituapp.ui.main
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
+import android.widget.TextView
 import androidx.lifecycle.Observer
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.navigation.fragment.findNavController
 import com.titu.tituapp.R
-import com.titu.tituapp.databinding.MainviewListItemMovieBinding
 import com.titu.tituapp.ui.main.vm.MainViewModel
-import com.titu.tituapp.ui.main.vm.MovieViewViewModel
-import kotlinx.android.extensions.LayoutContainer
+import com.titu.tituapp.ui.main.vm.Movie
 import kotlinx.android.synthetic.main.main_fragment.*
+import kotlinx.android.synthetic.main.mainview_list_item_movie.view.*
 
 class MainFragment : Fragment() {
 
-    private lateinit var viewModel: MainViewModel
+    private val viewModel: MainViewModel by lazy { MainViewModel() }
+    private lateinit var goodMoviesAdapter: RecyclerViewAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,115 +29,60 @@ class MainFragment : Fragment() {
         return inflater.inflate(R.layout.main_fragment, container, false)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = MainViewModel()
-
-        pressMe.setOnClickListener {
-            findNavController().navigate(R.id.open_movie_details)
-        }
-
-        movieRecyclerView.layoutManager = LinearLayoutManager(context)
-
-        val adapter = MovieListAdapter(MovieViewViewModel())
-        movieRecyclerView.adapter = adapter
-        val items = mutableListOf<ViewItem>().apply {
-            add(ViewItem.AlbumView("I am album"))
-            add(ViewItem.AlbumView("aaaa 2"))
-        }
-        adapter.replaceItems(items)
-    }
-
-}
-
-sealed class ViewItem(val resource: Int) {
-    class AlbumView(val name: String): ViewItem(R.layout.fragment_movie_details) //FIXME fix layout
-}
-
-private class MovieListAdapter(val viewModel: MovieViewViewModel) : RecyclerView.Adapter<MovieListAdapter.ViewHolder>() {
-    private var items: List<ViewItem> = listOf()
-
-    override fun getItemCount(): Int {
-        return items.size
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return items[position].resource
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return if (viewType == R.layout.fragment_movie_details) { // FIXME fix layout
-            val inflater = LayoutInflater.from(parent.context)
-            val binding = MainviewListItemMovieBinding.inflate(inflater, parent, false)
-            // val binding = DataBindingUtil.inflate<AlbumviewListItemAlbumBinding>(inflater, R.layout.albumview_list_item_album, parent, false)
-            val viewHolder = BindingViewHolder(binding.root, binding)
-            // suspected cannot mix observable with LiveData with Observable
-            binding.setLifecycleOwner(viewHolder)
-            return viewHolder
-
-        } else {
-            val view = LayoutInflater.from(parent.context)
-                .inflate(viewType, parent, false)
-            ViewHolder(view)
-        }
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = items[position]
-        //val context = holder.containerView.context
-
-        when (item) {
-            is ViewItem.AlbumView -> {
-                if (holder is BindingViewHolder) {
-                    holder.apply {
-                        viewModel.liveItem.name.value = item.name
-                        binding.viewModel = viewModel
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.loadData()
+        viewModel.movies.observe(viewLifecycleOwner, Observer {
+            Log.d("TAG", "badMovies :: $it")
+            if (::goodMoviesAdapter.isInitialized.not()) {
+                goodMoviesAdapter = RecyclerViewAdapter(it, object : MovieClickListener {
+                    override fun onClicked(position: Int) = run {
+                        findNavController().navigate(R.id.open_movie_details)
                     }
-                }
+                })
+            } else {
+                goodMoviesAdapter.notifyDataSetChanged()
             }
-        }
+            movieRecyclerView.apply {
+                layoutManager = LinearLayoutManager(requireContext())
+                adapter = goodMoviesAdapter
+            }
+        })
     }
 
-    override fun onViewAttachedToWindow(holder: ViewHolder) {
-        super.onViewAttachedToWindow(holder)
-        if (holder is BindingViewHolder) {
-            holder.markAttach()
-        }
+}
+
+
+/**
+ * Adapter for movies Recyclerview
+ */
+class RecyclerViewAdapter(
+    private val movies: List<Movie>,
+    private val movieClickListener: MovieClickListener
+) :
+    RecyclerView.Adapter<RecyclerViewAdapter.MovieViewHolder>() {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
+        return MovieViewHolder(
+            LayoutInflater.from(parent.context).inflate(
+                R.layout.mainview_list_item_movie,
+                parent,
+                false
+            )
+        )
     }
 
-    override fun onViewDetachedFromWindow(holder: ViewHolder) {
-        super.onViewDetachedFromWindow(holder)
+    override fun getItemCount(): Int = movies.size
 
-        if (holder is BindingViewHolder) {
-            holder.markDetach()
-        }
+    override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
+        holder.movieName.text = movies[position].name
+        holder.itemView.setOnClickListener { movieClickListener.onClicked(position) }
     }
 
-    fun replaceItems(items: List<ViewItem>) {
-        this.items = items
-        notifyDataSetChanged()
+    class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val movieName: TextView = itemView.albumNameTextView
     }
+}
 
-    open inner class ViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView),
-        LayoutContainer
-
-    inner class BindingViewHolder(override val containerView: View, val binding: MainviewListItemMovieBinding) : ViewHolder(containerView), LifecycleOwner {
-        private val lifecycleRegistry = LifecycleRegistry(this)
-
-        init {
-            lifecycleRegistry.currentState = Lifecycle.State.INITIALIZED
-        }
-
-        fun markAttach() {
-            lifecycleRegistry.currentState = Lifecycle.State.STARTED
-        }
-
-        fun markDetach() {
-            lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
-        }
-
-        override fun getLifecycle(): Lifecycle {
-            return lifecycleRegistry
-        }
-    }
+interface MovieClickListener {
+    fun onClicked(position: Int)
 }

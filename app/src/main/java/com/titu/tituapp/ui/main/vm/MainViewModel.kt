@@ -1,40 +1,19 @@
 package com.titu.tituapp.ui.main.vm
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
+data class Movie(val name: String)
+
 class MainViewModel : ViewModel() {
-    private val _badMovies: MutableList<String> by lazy {
-        mutableListOf(
-            "Titanic",
-            "Liceenii",
-            "Terminator"
-        )
-    }
-    val badMovies: MutableLiveData<List<String>> = MutableLiveData(_badMovies)
 
-    private val _goodMovies: MutableList<String> by lazy {
-        mutableListOf(
-            "Titanic - Part2",
-            "Liceenii - Reluare",
-            "Terminator - But Skynet won"
-        )
-    }
-    val goodMovies: MutableLiveData<List<String>> = MutableLiveData(_goodMovies)
+    // Encapsulate access to mutable LiveData using backing property
+    private val _movies = MutableLiveData<List<Movie>>()
+    val movies: LiveData<List<Movie>> = _movies
 
-    fun downrateMovie(position: Int) {
-        val movie = _goodMovies.removeAt(position)
-        _badMovies.add(movie)
 
-        badMovies.postValue(_badMovies)
-        goodMovies.postValue(_goodMovies)
-    }
-
-    fun uprateMovie(position: Int) {
-        val movie = _badMovies.removeAt(position)
-        _goodMovies.add(movie)
-
-        badMovies.postValue(_badMovies)
-        goodMovies.postValue(_goodMovies)
+    fun loadData(){
+        _movies.value = arrayListOf(Movie("Titanic 1"), Movie("Titanic 2"))
     }
 }
