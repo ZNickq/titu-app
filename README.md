@@ -1,7 +1,7 @@
 Titu App
 -----------
 
-This app displays a list of movies from https://www.themoviedb.org/. It allows searching for a particular movies, and contains the following features:
+This app displays a list of movies from https://www.themoviedb.org/. It contains the following features:
 
 - TextView, ImageView, ConstraintLayout, ScrollView, DataBinding (All Activities / Views)
 - Activities, fragments, nav graph (All Activities, nav_graph.xml)
