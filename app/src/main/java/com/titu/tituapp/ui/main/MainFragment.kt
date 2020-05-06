@@ -18,6 +18,7 @@ import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import com.titu.tituapp.R
 import com.titu.tituapp.ui.main.datamodels.Movie
+import com.titu.tituapp.ui.main.util.SelectionStateManager
 import com.titu.tituapp.ui.main.util.VerticalSpaceItemDecoration
 import com.titu.tituapp.ui.main.vm.MainViewModel
 import kotlinx.android.synthetic.main.main_fragment.*
@@ -43,7 +44,8 @@ class MainFragment : Fragment() {
             if (::goodMoviesAdapter.isInitialized.not()) {
                 goodMoviesAdapter = RecyclerViewAdapter(it, object : MovieClickListener {
                     override fun onClicked(position: Int) = run {
-                        findNavController().navigate(R.id.open_movie_details)
+                        SelectionStateManager.instance.selectedMovie = goodMoviesAdapter.movieAt(position)
+                        findNavController().navigate(R.id.open_movie_details) // Not passing through safeArgs because it takes more time and isn't required
                     }
                 })
             } else {
@@ -91,6 +93,10 @@ class RecyclerViewAdapter(
         Picasso.get().load(url).into(holder.movieAlbum)
 
         holder.itemView.setOnClickListener { movieClickListener.onClicked(position) }
+    }
+
+    fun movieAt(position: Int): Movie {
+        return movies.get(position)
     }
 
     class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

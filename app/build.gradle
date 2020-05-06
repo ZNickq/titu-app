@@ -44,6 +44,7 @@ dependencies {
     def okhttp3_version = "3.12.0"
     def kotlinCoroutineVersion = "1.0.1"
     def picassoVersion = "2.71828"
+    def room_version = "2.2.5"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -55,6 +56,10 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
+    implementation "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version" // For Kotlin use kapt instead of annotationProcessor
+
 
     //Moshi
     implementation "com.squareup.moshi:moshi-kotlin:$moshiVersion"

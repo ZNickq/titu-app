@@ -3,10 +3,49 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <variable name="viewModel" type="com.titu.tituapp.ui.main.vm.SecondViewModel"/>
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".ui.main.MovieDetailsFragment">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:id="@+id/textView"
+            android:text="@{viewModel.selectedMovie.title}"
+            />
+
+        <Button
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView"
+            android:layout_width="wrap_content"
+            android:text="Like"
+            android:id="@+id/likeButton"
+            android:onClick="@{() -> viewModel.onLike()}"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_width="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/likeButton"
+            android:text="Dislike"
+            android:onClick="@{() -> viewModel.onDislike()}"
+            android:id="@+id/dislikeButton"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dislikeButton"
+            android:text="Current status: none"
+            android:layout_width="wrap_content"
+            android:id="@+id/currentStatusTextView"
+            android:layout_height="wrap_content" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
