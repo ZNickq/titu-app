@@ -13,8 +13,6 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ItemDecoration
-import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import com.titu.tituapp.R
 import com.titu.tituapp.ui.main.datamodels.Movie
@@ -38,7 +36,7 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.loadData()
+        viewModel.loadData(requireContext())
         viewModel.movies.observe(viewLifecycleOwner, Observer {
             Log.d("TAG", "badMovies :: $it")
             if (::goodMoviesAdapter.isInitialized.not()) {
